@@ -1,6 +1,15 @@
 version: '3.4'
 
 services:
+  seq:
+    container_name: seq
+    image: datalust/seq:latest
+    ports: 
+        - 8082:80
+        - 5341:5341
+    environment:
+        ACCEPT_EULA: Y
+
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:3-management
@@ -30,6 +39,8 @@ services:
        - 8080:80
     restart: on-failure
     depends_on:
+       seq:
+        condition: service_started
        redis:
         condition: service_started
        rabbitmq:

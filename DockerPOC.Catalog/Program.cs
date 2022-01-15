@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 using Serilog.Formatting.Compact;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,10 @@ namespace DockerPOC.API
             Log.Logger = new LoggerConfiguration()
             .Enrich.FromLogContext()
             .WriteTo.Console(new RenderedCompactJsonFormatter())
+            .WriteTo.Seq("http://seq:5341",
+           // apiKey: "NXtnX6mZmzQIOnDWRIRs",
+                restrictedToMinimumLevel: LogEventLevel.Information,
+                bufferBaseFilename: @"C:\Work\Github\DockerPOC\Logs")
             .CreateLogger();
 
             try
