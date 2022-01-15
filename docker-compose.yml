@@ -1,0 +1,44 @@
+version: '3.4'
+
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    ports:
+        - 5672:5672
+        - 15672:15672
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+        - 6379:6379
+
+  dockerpoc.catalog:
+    container_name: catalogapi
+    image: ${DOCKER_REGISTRY-}dockerpoccatalog
+    build:
+      context: .
+      dockerfile: DockerPOC.Catalog/Dockerfile
+    ports:
+       - 8080:80
+    restart: on-failure
+    depends_on:
+       - redis
+       - rabbitmq
+
+  dockerpoc.ordering:
+    container_name: orderingapi
+    image: ${DOCKER_REGISTRY-}dockerpocordering
+    build:
+      context: .
+      dockerfile: DockerPOC.Ordering/Dockerfile
+    ports:
+       - 8081:80
+    depends_on:
+       - rabbitmq
