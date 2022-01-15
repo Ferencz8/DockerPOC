@@ -19,8 +19,9 @@ namespace DockerPOC.Amqp
         public RabbitMqService(IOptions<RabbitMqConfiguration> options)
         {
             _configuration = options.Value;
+            Connect();
         }
-        public void Connect()
+        private void Connect()
         {
             if (_connection == null || _connection.IsOpen == false)
             {

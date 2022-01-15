@@ -8,10 +8,11 @@ services:
         - 5672:5672
         - 15672:15672
     healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
-      interval: 5s
+      #test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
       timeout: 15s
-      retries: 1
+      retries: 3
 
   redis:
     container_name: redis
@@ -29,8 +30,10 @@ services:
        - 8080:80
     restart: on-failure
     depends_on:
-       - redis
-       - rabbitmq
+       redis:
+        condition: service_started
+       rabbitmq:
+        condition: service_healthy
 
   dockerpoc.ordering:
     container_name: orderingapi

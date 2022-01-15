@@ -1,26 +1,18 @@
 using DockerPOC.Amqp;
-using DockerPOC.Catalog.Handlers;
+using DockerPOC.Catalog.Consumers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DockerPOC.API
 {
     public class Startup
     {
+        private const string RedisHostKey = "redisHost";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -33,7 +25,7 @@ namespace DockerPOC.API
         {
             services.AddControllers();
 
-            var multiplexer = ConnectionMultiplexer.Connect("redis");
+            var multiplexer = ConnectionMultiplexer.Connect(Configuration.GetSection(RedisHostKey).Value);
             services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 
             services.Configure<RabbitMqConfiguration>(a => Configuration.GetSection(nameof(RabbitMqConfiguration)).Bind(a));
@@ -41,6 +33,7 @@ namespace DockerPOC.API
 
             services.AddHostedService<OrderConsumer>();
         }
+                
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

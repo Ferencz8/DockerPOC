@@ -28,7 +28,6 @@ namespace DockerPOC.Ordering.Controllers
         [HttpPost]
         public IActionResult SendOrder([FromBody] Order order)
         {
-            _rabbitMqService.Connect();
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(order));
             var properties = _rabbitMqService.Channel.CreateBasicProperties();
             properties.ContentType = "application/json";
